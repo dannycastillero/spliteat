@@ -87,4 +87,33 @@ describe('validateBillTotal', () => {
     const breakdowns = calculateAllBreakdowns([p1, p2], items, 0)
     expect(validateBillTotal(breakdowns, items, 0)).toBe(true)
   })
+
+  it('retorna false cuando la suma no cuadra (diferencia > $0.01)', () => {
+    const p1 = makePerson('p1')
+    const items = [makeItem({ id: 'i1', totalPrice: 100, assignedTo: ['p1'] })]
+    const breakdowns = calculateAllBreakdowns([p1], items, 0)
+    // Manipulamos el total para crear una discrepancia
+    const tampered = [{ ...breakdowns[0], total: breakdowns[0].total + 1.00 }]
+    expect(validateBillTotal(tampered, items, 0)).toBe(false)
+  })
+})
+
+describe('calculateAllBreakdowns', () => {
+  it('retorna un breakdown por cada persona', () => {
+    const people = [makePerson('p1'), makePerson('p2'), makePerson('p3')]
+    const items = [
+      makeItem({ id: 'i1', totalPrice: 30, assignedTo: ['p1'] }),
+      makeItem({ id: 'i2', totalPrice: 20, assignedTo: ['p2'] }),
+      makeItem({ id: 'i3', totalPrice: 10, assignedTo: ['p3'] }),
+    ]
+    const result = calculateAllBreakdowns(people, items, 0)
+
+    expect(result).toHaveLength(3)
+    expect(result[0].personId).toBe('p1')
+    expect(result[1].personId).toBe('p2')
+    expect(result[2].personId).toBe('p3')
+    expect(result[0].total).toBeCloseTo(30 * 1.07)
+    expect(result[1].total).toBeCloseTo(20 * 1.07)
+    expect(result[2].total).toBeCloseTo(10 * 1.07)
+  })
 })
