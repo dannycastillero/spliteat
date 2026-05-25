@@ -1,12 +1,10 @@
 import { DatabaseSync } from 'node:sqlite'
 
-const DB_PATH = process.env.DATABASE_PATH || './spliteat.db'
-
 let db: DatabaseSync | null = null
 
 export function getDb(): DatabaseSync {
   if (!db) {
-    db = new DatabaseSync(DB_PATH)
+    db = new DatabaseSync(process.env.DATABASE_PATH || './spliteat.db')
   }
   return db
 }
