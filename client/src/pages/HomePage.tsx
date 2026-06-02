@@ -9,7 +9,7 @@ export default function HomePage() {
   const { setItems, setRawImage, resetBill } = useBill()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
-  const recentBills: Array<{ billId: string; date: string; total: string }> =
+  const recentBills: Array<{ shareUrl: string; date: string; total: string }> =
     JSON.parse(localStorage.getItem('spliteat_recent') || '[]')
 
   const handleFile = async (file: File) => {
@@ -111,8 +111,8 @@ export default function HomePage() {
           <div className="flex gap-3 overflow-x-auto pb-2">
             {recentBills.map(b => (
               <a
-                key={b.billId}
-                href={`/share/${b.billId}`}
+                key={b.shareUrl}
+                href={b.shareUrl}
                 className="flex-shrink-0 w-24 h-24 bg-white rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1 border border-gray-100"
               >
                 <span className="text-2xl">🧾</span>

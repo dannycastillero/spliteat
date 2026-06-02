@@ -15,7 +15,7 @@ export default function App() {
           <Route path="/review" element={<ReviewPage />} />
           <Route path="/assign" element={<AssignPage />} />
           <Route path="/summary" element={<SummaryPage />} />
-          <Route path="/share/:billId" element={<SharePage />} />
+          <Route path="/share" element={<SharePage />} />
         </Routes>
       </BrowserRouter>
     </BillProvider>

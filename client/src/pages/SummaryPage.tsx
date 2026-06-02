@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { useBill } from '../context/BillContext'
 import { calculateAllBreakdowns, validateBillTotal } from '../lib/taxCalculator'
-import { saveBillToServer } from '../api/client'
 import PersonAvatar from '../components/PersonAvatar'
 import BottomNav from '../components/BottomNav'
-import type { PersonBreakdown, SavedBill } from '../types'
+import type { Item, Person, PersonBreakdown } from '../types'
 
 export default function SummaryPage() {
   const { items, people, tipPercentage } = useBill()
@@ -31,24 +30,25 @@ export default function SummaryPage() {
 
   const myItems = items.filter(i => i.assignedTo.includes(person.id))
 
-  const handleShare = async () => {
+  const handleShare = () => {
     setSharing(true)
     try {
-      const billData: SavedBill = { items, people, tipPercentage, breakdowns }
-      const { billId } = await saveBillToServer(billData)
+      // Codifica la cuenta en base64 para compartir sin base de datos
+      const payload = { items, people, tipPercentage }
+      const encoded = btoa(encodeURIComponent(JSON.stringify(payload)))
+      const shareUrl = `${window.location.origin}/share?d=${encoded}`
 
       const recent = JSON.parse(localStorage.getItem('spliteat_recent') || '[]')
       const updated = [
-        { billId, date: new Date().toLocaleDateString('es-PA'), total: grandTotal.toFixed(2) },
+        { shareUrl, date: new Date().toLocaleDateString('es-PA'), total: grandTotal.toFixed(2) },
         ...recent,
       ].slice(0, 5)
       localStorage.setItem('spliteat_recent', JSON.stringify(updated))
 
-      const shareUrl = `${window.location.origin}/share/${billId}`
       const text = `Aquí está el resumen de nuestra cuenta 🍽️: ${shareUrl}`
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
     } catch {
-      alert('No se pudo generar el link. Verifica tu conexión.')
+      alert('No se pudo generar el link.')
     } finally {
       setSharing(false)
     }
@@ -197,9 +197,9 @@ function FullBillView({
   grandTotal,
   billHasAlcohol,
 }: {
-  people: ReturnType<typeof useBill>['people']
+  people: Person[]
   breakdowns: PersonBreakdown[]
-  items: ReturnType<typeof useBill>['items']
+  items: Item[]
   tipPercentage: number
   grandTotal: number
   billHasAlcohol: boolean
