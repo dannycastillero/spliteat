@@ -11,7 +11,8 @@ interface BillContextValue extends BillState {
   addItem: (item: Omit<Item, 'id' | 'assignedTo'>) => void
   updateItem: (id: string, changes: Partial<Item>) => void
   removeItem: (id: string) => void
-  addPerson: (name: string) => void
+  addPerson: (name: string, senior?: boolean) => void
+  updatePerson: (id: string, changes: Partial<Person>) => void
   removePerson: (id: string) => void
   setTipPercentage: (pct: number) => void
   toggleAssignment: (itemId: string, personId: string) => void
@@ -47,15 +48,21 @@ export function BillProvider({ children }: { children: ReactNode }) {
   const removeItem = (id: string) =>
     setState(s => ({ ...s, items: s.items.filter(i => i.id !== id) }))
 
-  const addPerson = (name: string) => {
+  const addPerson = (name: string, senior = false) => {
     setState(s => {
       const color = AVATAR_COLORS[s.people.length % AVATAR_COLORS.length]
       return {
         ...s,
-        people: [...s.people, { id: crypto.randomUUID(), name, color }],
+        people: [...s.people, { id: crypto.randomUUID(), name, color, senior }],
       }
     })
   }
+
+  const updatePerson = (id: string, changes: Partial<Person>) =>
+    setState(s => ({
+      ...s,
+      people: s.people.map(p => (p.id === id ? { ...p, ...changes } : p)),
+    }))
 
   const removePerson = (personId: string) =>
     setState(s => ({
@@ -99,6 +106,7 @@ export function BillProvider({ children }: { children: ReactNode }) {
         updateItem,
         removeItem,
         addPerson,
+        updatePerson,
         removePerson,
         setTipPercentage,
         toggleAssignment,

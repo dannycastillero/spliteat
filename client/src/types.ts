@@ -13,6 +13,7 @@ export interface Person {
   id: string
   name: string
   color: string             // hex color del avatar
+  senior?: boolean          // 25% descuento en comida (jubilado)
 }
 
 export interface BillState {
@@ -26,9 +27,10 @@ export interface PersonBreakdown {
   personId: string
   foodSubtotal: number
   alcoholSubtotal: number
-  foodTax: number           // foodSubtotal × 0.07
+  seniorDiscount: number    // foodSubtotal × 0.25 si jubilado, 0 si no
+  foodTax: number           // (foodSubtotal - seniorDiscount) × 0.07
   alcoholTax: number        // alcoholSubtotal × 0.10
-  tipShare: number          // proporcional al subtotal
+  tipShare: number          // proporcional al subtotal neto
   total: number
 }
 

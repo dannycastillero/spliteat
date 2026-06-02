@@ -172,7 +172,7 @@ export default function ReviewPage() {
       )}
 
       <div className="bg-white rounded-2xl p-4 shadow-sm mb-6">
-        <h3 className="font-heading font-semibold text-sm mb-3">Add a Group Tip?</h3>
+        <h3 className="font-heading font-semibold text-sm mb-3">Propina</h3>
         <TipSelector value={tipPercentage} onChange={setTipPercentage} />
       </div>
 
