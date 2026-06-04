@@ -2,12 +2,19 @@
   "name": "spliteat",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "test:migration": "node --test scripts/validate-migration.test.mjs",
+    "test:api": "vitest run",
+    "test": "node --test scripts/validate-migration.test.mjs && vitest run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.0"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "pgsql-parser": "^17.9.15",
+    "supabase": "^2.104.0",
+    "tsx": "^4.22.4",
+    "vitest": "^4.1.8"
   }
 }
