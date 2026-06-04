@@ -1,21 +1,33 @@
-import { useSearchParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { calculateAllBreakdowns } from '../lib/taxCalculator'
+import { getBillFromServer } from '../api/client'
 import type { BillState } from '../types'
 
 export default function SharePage() {
+  const { billId } = useParams<{ billId?: string }>()
   const [searchParams] = useSearchParams()
-  const encoded = searchParams.get('d')
+  const [bill, setBill] = useState<BillState | null>(null)
+  const [error, setError] = useState(false)
 
-  if (!encoded) {
-    return <ErrorView />
-  }
+  useEffect(() => {
+    if (billId) {
+      getBillFromServer(billId)
+        .then(setBill)
+        .catch(() => setError(true))
+    } else {
+      const encoded = searchParams.get('d')
+      if (!encoded) { setError(true); return }
+      try {
+        setBill(JSON.parse(decodeURIComponent(atob(encoded))))
+      } catch {
+        setError(true)
+      }
+    }
+  }, [billId, searchParams])
 
-  let bill: BillState
-  try {
-    bill = JSON.parse(decodeURIComponent(atob(encoded)))
-  } catch {
-    return <ErrorView />
-  }
+  if (error) return <ErrorView />
+  if (!bill) return <LoadingView />
 
   const breakdowns = calculateAllBreakdowns(bill.people, bill.items, bill.tipPercentage)
   const grandTotal = breakdowns.reduce((s, b) => s + b.total, 0)
@@ -25,7 +37,7 @@ export default function SharePage() {
     <div className="flex flex-col min-h-screen px-5 pb-10">
       <header className="pt-8 pb-6 text-center">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <span className="text-primary text-xl">✕</span>
+          <span className="text-primary text-xl">🍽️</span>
           <span className="font-heading font-bold text-xl">SplitEat</span>
         </div>
         <h1 className="font-heading font-bold text-2xl">Resumen de la cuenta</h1>
@@ -34,7 +46,6 @@ export default function SharePage() {
         </p>
       </header>
 
-      {/* Todos los items */}
       <div className="bg-white rounded-2xl shadow-sm mb-6">
         <div className="px-4 py-3 border-b border-gray-100">
           <span className="font-heading font-bold text-sm">Todos los items</span>
@@ -55,14 +66,12 @@ export default function SharePage() {
         </div>
       </div>
 
-      {/* Por persona */}
       <h2 className="font-heading font-bold text-lg mb-3">Por persona</h2>
       <div className="space-y-3">
         {bill.people.map((person, idx) => {
           const bd = breakdowns[idx]
           if (!bd) return null
           const myItems = bill.items.filter(i => i.assignedTo.includes(person.id))
-
           return (
             <div key={person.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
@@ -108,6 +117,15 @@ export default function SharePage() {
       <div className="text-center mt-8 text-xs text-gray-400">
         Generado con SplitEat 🍽️
       </div>
+    </div>
+  )
+}
+
+function LoadingView() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen px-5 text-center">
+      <div className="text-4xl mb-4">🍽️</div>
+      <p className="text-on-surface-variant text-sm">Cargando cuenta...</p>
     </div>
   )
 }

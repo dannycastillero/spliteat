@@ -1,23 +1,33 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { BillProvider } from './context/BillContext'
+import { AuthProvider } from './context/AuthContext'
+import TopBar from './components/TopBar'
 import HomePage from './pages/HomePage'
 import ReviewPage from './pages/ReviewPage'
 import AssignPage from './pages/AssignPage'
 import SummaryPage from './pages/SummaryPage'
 import SharePage from './pages/SharePage'
+import HistoryPage from './pages/HistoryPage'
+import AuthCallbackPage from './pages/AuthCallbackPage'
 
 export default function App() {
   return (
-    <BillProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/review" element={<ReviewPage />} />
-          <Route path="/assign" element={<AssignPage />} />
-          <Route path="/summary" element={<SummaryPage />} />
-          <Route path="/share" element={<SharePage />} />
-        </Routes>
-      </BrowserRouter>
-    </BillProvider>
+    <AuthProvider>
+      <BillProvider>
+        <BrowserRouter>
+          <TopBar />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/review" element={<ReviewPage />} />
+            <Route path="/assign" element={<AssignPage />} />
+            <Route path="/summary" element={<SummaryPage />} />
+            <Route path="/share" element={<SharePage />} />
+            <Route path="/share/:billId" element={<SharePage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          </Routes>
+        </BrowserRouter>
+      </BillProvider>
+    </AuthProvider>
   )
 }

@@ -1,4 +1,5 @@
 import type { SavedBill } from '../types'
+import { supabase } from '../lib/supabase'
 
 export interface OcrResponse {
   items: Array<{
@@ -22,9 +23,16 @@ export async function ocrReceipt(imageBase64: string, mediaType: string): Promis
 }
 
 export async function saveBillToServer(billData: object): Promise<{ billId: string }> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`
+  }
+
   const res = await fetch('/api/bills', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(billData),
   })
   if (!res.ok) throw new Error('Failed to save bill')

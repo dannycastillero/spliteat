@@ -3,6 +3,7 @@ import { useBill } from '../context/BillContext'
 import { calculateAllBreakdowns, validateBillTotal } from '../lib/taxCalculator'
 import PersonAvatar from '../components/PersonAvatar'
 import BottomNav from '../components/BottomNav'
+import { saveBillToServer } from '../api/client'
 import type { Item, Person, PersonBreakdown } from '../types'
 
 export default function SummaryPage() {
@@ -30,13 +31,12 @@ export default function SummaryPage() {
 
   const myItems = items.filter(i => i.assignedTo.includes(person.id))
 
-  const handleShare = () => {
+  const handleShare = async () => {
     setSharing(true)
     try {
-      // Codifica la cuenta en base64 para compartir sin base de datos
       const payload = { items, people, tipPercentage }
-      const encoded = btoa(encodeURIComponent(JSON.stringify(payload)))
-      const shareUrl = `${window.location.origin}/share?d=${encoded}`
+      const { billId } = await saveBillToServer(payload)
+      const shareUrl = `${window.location.origin}/share/${billId}`
 
       const recent = JSON.parse(localStorage.getItem('spliteat_recent') || '[]')
       const updated = [
@@ -48,7 +48,7 @@ export default function SummaryPage() {
       const text = `Aquí está el resumen de nuestra cuenta 🍽️: ${shareUrl}`
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
     } catch {
-      alert('No se pudo generar el link.')
+      alert('No se pudo guardar la cuenta. Verifica tu conexión.')
     } finally {
       setSharing(false)
     }
