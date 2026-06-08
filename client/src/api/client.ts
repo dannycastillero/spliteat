@@ -22,7 +22,7 @@ export async function ocrReceipt(imageBase64: string, mediaType: string): Promis
   return res.json()
 }
 
-export async function saveBillToServer(billData: object): Promise<{ billId: string }> {
+export async function saveBillToServer(billData: object): Promise<{ billId: string; shortCode: string }> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
 
   const { data: { session } } = await supabase.auth.getSession()
@@ -41,6 +41,12 @@ export async function saveBillToServer(billData: object): Promise<{ billId: stri
 
 export async function getBillFromServer(billId: string): Promise<SavedBill> {
   const res = await fetch(`/api/bills/${billId}`)
+  if (!res.ok) throw new Error('Bill not found')
+  return res.json()
+}
+
+export async function getBillByCode(code: string): Promise<SavedBill> {
+  const res = await fetch(`/api/s/${code}`)
   if (!res.ok) throw new Error('Bill not found')
   return res.json()
 }
