@@ -13,7 +13,7 @@ async function createBillWithRetry(
       .insert({ user_id: userId, data, short_code })
       .select('id, short_code')
       .single()
-    if (!error) return bill
+    if (!error && bill) return bill
     if (error.code !== '23505') throw error
   }
   throw new Error('Failed to generate unique short code after 3 attempts')
