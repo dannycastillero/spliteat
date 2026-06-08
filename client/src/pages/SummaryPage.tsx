@@ -35,8 +35,8 @@ export default function SummaryPage() {
     setSharing(true)
     try {
       const payload = { items, people, tipPercentage }
-      const { billId } = await saveBillToServer(payload)
-      const shareUrl = `${window.location.origin}/share/${billId}`
+      const { shortCode } = await saveBillToServer(payload)
+      const shareUrl = `${window.location.origin}/s/${shortCode}`
 
       const recent = JSON.parse(localStorage.getItem('spliteat_recent') || '[]')
       const updated = [
