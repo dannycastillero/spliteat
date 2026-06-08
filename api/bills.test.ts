@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock @supabase/supabase-js before importing handler
 const mockInsert = vi.fn()
 const mockSelect = vi.fn()
 const mockSingle = vi.fn()
@@ -43,7 +42,7 @@ describe('POST /api/bills', () => {
     vi.clearAllMocks()
     process.env.SUPABASE_URL = 'https://test.supabase.co'
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-key'
-    mockSingle.mockResolvedValue({ data: { id: 'bill-uuid-123' }, error: null })
+    mockSingle.mockResolvedValue({ data: { id: 'bill-uuid-123', short_code: 'abc123' }, error: null })
   })
 
   it('returns 405 for non-POST requests', async () => {
@@ -72,7 +71,7 @@ describe('POST /api/bills', () => {
     const req = makeReq()
     const res = makeRes()
     await handler(req, res)
-    expect(res.json).toHaveBeenCalledWith({ billId: 'bill-uuid-123' })
+    expect(res.json).toHaveBeenCalledWith({ billId: 'bill-uuid-123', shortCode: 'abc123' })
     expect(mockGetUser).not.toHaveBeenCalled()
   })
 
@@ -82,7 +81,7 @@ describe('POST /api/bills', () => {
     const res = makeRes()
     await handler(req, res)
     expect(mockGetUser).toHaveBeenCalledWith('valid-token')
-    expect(res.json).toHaveBeenCalledWith({ billId: 'bill-uuid-123' })
+    expect(res.json).toHaveBeenCalledWith({ billId: 'bill-uuid-123', shortCode: 'abc123' })
   })
 
   it('saves anonymously when Bearer token resolves to no user', async () => {
@@ -90,15 +89,26 @@ describe('POST /api/bills', () => {
     const req = makeReq({ headers: { authorization: 'Bearer invalid-token' } })
     const res = makeRes()
     await handler(req, res)
-    expect(res.json).toHaveBeenCalledWith({ billId: 'bill-uuid-123' })
+    expect(res.json).toHaveBeenCalledWith({ billId: 'bill-uuid-123', shortCode: 'abc123' })
   })
 
-  it('returns 500 when Supabase insert fails', async () => {
-    mockSingle.mockResolvedValue({ data: null, error: { message: 'DB connection failed' } })
+  it('returns 500 when Supabase insert fails with non-collision error', async () => {
+    mockSingle.mockResolvedValue({ data: null, error: { code: '42P01', message: 'DB connection failed' } })
     const req = makeReq()
     const res = makeRes()
     await handler(req, res)
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({ error: 'DB connection failed' })
+  })
+
+  it('retries on short_code collision (23505) and succeeds', async () => {
+    mockSingle
+      .mockResolvedValueOnce({ data: null, error: { code: '23505', message: 'unique violation' } })
+      .mockResolvedValueOnce({ data: { id: 'bill-uuid-456', short_code: 'xyz789' }, error: null })
+    const req = makeReq()
+    const res = makeRes()
+    await handler(req, res)
+    expect(mockSingle).toHaveBeenCalledTimes(2)
+    expect(res.json).toHaveBeenCalledWith({ billId: 'bill-uuid-456', shortCode: 'xyz789' })
   })
 })
