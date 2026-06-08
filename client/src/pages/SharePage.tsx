@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { calculateAllBreakdowns } from '../lib/taxCalculator'
-import { getBillFromServer } from '../api/client'
+import { getBillFromServer, getBillByCode } from '../api/client'
 import type { BillState } from '../types'
 
 export default function SharePage() {
-  const { billId } = useParams<{ billId?: string }>()
+  const { billId, code } = useParams<{ billId?: string; code?: string }>()
   const [searchParams] = useSearchParams()
   const [bill, setBill] = useState<BillState | null>(null)
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    if (billId) {
+    if (code) {
+      getBillByCode(code)
+        .then(setBill)
+        .catch(() => setError(true))
+    } else if (billId) {
       getBillFromServer(billId)
         .then(setBill)
         .catch(() => setError(true))
@@ -24,7 +28,7 @@ export default function SharePage() {
         setError(true)
       }
     }
-  }, [billId, searchParams])
+  }, [billId, code, searchParams])
 
   if (error) return <ErrorView />
   if (!bill) return <LoadingView />

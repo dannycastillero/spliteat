@@ -11,11 +11,13 @@ import HistoryPage from './pages/HistoryPage'
 import AuthCallbackPage from './pages/AuthCallbackPage'
 import LoginPage from './pages/LoginPage'
 
-const NO_TOPBAR = ['/login', '/auth/callback', '/share']
+const NO_TOPBAR_EXACT = ['/login', '/auth/callback', '/share']
 
 function AppRoutes() {
   const { pathname } = useLocation()
-  const showTopBar = !NO_TOPBAR.some(p => pathname === p || pathname.startsWith('/share/'))
+  const showTopBar =
+    !NO_TOPBAR_EXACT.some(p => pathname === p || pathname.startsWith('/share/')) &&
+    !pathname.startsWith('/s/')
 
   return (
     <>
@@ -28,6 +30,7 @@ function AppRoutes() {
         <Route path="/summary" element={<SummaryPage />} />
         <Route path="/share" element={<SharePage />} />
         <Route path="/share/:billId" element={<SharePage />} />
+        <Route path="/s/:code" element={<SharePage />} />
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
       </Routes>
