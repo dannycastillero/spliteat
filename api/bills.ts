@@ -1,24 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 
-async function createBillWithRetry(
-  supabase: any,
-  userId: string | null,
-  data: object,
-  attempts = 3
-): Promise<{ id: string; short_code: string }> {
-  for (let i = 0; i < attempts; i++) {
-    const short_code = Math.random().toString(36).slice(2, 8)
-    const { data: bill, error } = await supabase
-      .from('bills')
-      .insert({ user_id: userId, data, short_code })
-      .select('id, short_code')
-      .single()
-    if (!error && bill) return bill
-    if (error.code !== '23505') throw error
-  }
-  throw new Error('Failed to generate unique short code after 3 attempts')
-}
-
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -43,8 +24,13 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const bill = await createBillWithRetry(supabase, userId, billData)
-    res.json({ billId: bill.id, shortCode: bill.short_code })
+    const { data, error } = await supabase.rpc('create_bill', {
+      p_user_id: userId,
+      p_data: billData
+    })
+    if (error) throw error
+    const bill = data[0]
+    res.json({ billId: bill.bill_id, shortCode: bill.bill_short_code })
   } catch (err: any) {
     res.status(500).json({ error: err.message })
   }
