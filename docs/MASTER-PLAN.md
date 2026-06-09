@@ -1,6 +1,6 @@
 # Master Plan — SplitEat
 
-**Última actualización:** 2026-06-09
+**Última actualización:** 2026-06-09 (deploy v3 completo)
 
 ---
 
@@ -25,7 +25,7 @@ Spec: [2026-05-24-spliteat-design.md](superpowers/specs/2026-05-24-spliteat-desi
 
 ---
 
-### v3 — Supabase + Login + Short Links (CÓDIGO COMPLETO ✅ / DEPLOY PENDIENTE ⏳)
+### v3 — Supabase + Login + Short Links (COMPLETO ✅)
 
 Spec login: [2026-06-03-supabase-login-design.md](superpowers/specs/2026-06-03-supabase-login-design.md)
 Spec short links: [2026-06-08-short-links-design.md](superpowers/specs/2026-06-08-short-links-design.md)
@@ -34,7 +34,7 @@ Plan short links: [2026-06-08-short-links.md](superpowers/plans/2026-06-08-short
 | Paso | Descripción | Estado |
 |------|-------------|--------|
 | Supabase DB | Tabla bills + RLS + índices + columna short_code | ✅ Completo |
-| `api/bills.ts` | POST crear factura con short_code, retorna `{ billId, shortCode }` | ✅ Completo |
+| `api/bills.ts` | POST crear factura via RPC, retorna `{ billId, shortCode }` | ✅ Completo |
 | `api/bills/[billId].ts` | GET por UUID | ✅ Completo |
 | `api/s/[code].ts` | GET por short_code (6 chars) | ✅ Completo |
 | Supabase Auth | Email + contraseña, signup, signin, forgot password | ✅ Completo |
@@ -44,13 +44,13 @@ Plan short links: [2026-06-08-short-links.md](superpowers/plans/2026-06-08-short
 | HistoryPage | Historial de facturas del usuario | ✅ Completo |
 | SharePage | Soporta `/s/:code`, `/share/:billId`, `?d=` legacy | ✅ Completo |
 | SummaryPage | Share genera URL `/s/:code` | ✅ Completo |
-| **Variables de entorno en Vercel** | Agregar SUPABASE_URL, ANON_KEY, SERVICE_ROLE_KEY, VITE_* | ⏳ **Pendiente** |
-| **Deploy a producción** | git push → Vercel auto-deploy | ⏳ **Pendiente** |
-| **Verificación E2E en producción** | Probar flujo completo en spliteat.vercel.app | ⏳ **Pendiente** |
+| Variables de entorno en Vercel | SUPABASE_URL, ANON_KEY, SERVICE_ROLE_KEY, VITE_* | ✅ Completo |
+| Deploy a producción | git push → Vercel auto-deploy | ✅ Completo |
+| Verificación E2E en producción | POST /api/bills → shortCode ✓, GET /api/s/:code ✓ | ✅ Completo |
 
 ---
 
-### v4 — QA y Beta Testing (EN PLANIFICACIÓN 🎨)
+### v4 — QA y Beta Testing (PRÓXIMO 🎯)
 
 | Paso | Descripción | Estado |
 |------|-------------|--------|
@@ -65,10 +65,9 @@ Plan short links: [2026-06-08-short-links.md](superpowers/plans/2026-06-08-short
 
 | Acción | Tipo | Prioridad |
 |--------|------|-----------|
-| Agregar variables de entorno en Vercel | Manual | 🔴 Alta |
-| Deploy a producción (git push) | Manual | 🔴 Alta |
-| Verificar app en spliteat.vercel.app | Manual | 🔴 Alta |
-| Planificar QA + formulario de feedback | Con IA | 🟡 Media |
+| Planificar QA + formulario de feedback | Con IA | 🔴 Alta |
+| Enviar URL a 20-30 beta testers | Manual | 🟡 Media |
+| Analizar feedback y priorizar cambios | Con IA | 🟡 Media |
 
 ---
 
