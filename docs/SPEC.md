@@ -1,6 +1,6 @@
 # Spec — SplitEat
 
-**Última actualización:** 2026-06-09
+**Última actualización:** 2026-06-09 (pre-QA hardening)
 
 ---
 
@@ -29,6 +29,9 @@ URL de producción: `spliteat.vercel.app`
 - Historial de facturas para usuarios autenticados (`/history`)
 - TopBar oculto en páginas de share y login
 - Facturas anónimas funcionan sin login
+- CTA al final de la share page: "Divide tu cuenta gratis →" → navega a `/`
+- Rate limiting en `/api/ocr`: 20 llamadas/hora por IP (tabla `rate_limits` + función RPC en Supabase)
+- Validación de tamaño en `/api/ocr`: máximo 7MB en imageBase64 (Vercel rechaza > 4.5MB antes del código)
 
 ---
 
@@ -46,8 +49,10 @@ Supabase (proyecto "SplitEasy", id: kvifhshmhggzmpmcoymx)
   Auth                      ← email + contraseña
   Database (Postgres)
     tabla bills: id, created_at, user_id, data (jsonb), short_code (char 6, unique)
-    RLS: insert_any, select_own, select_anonymous
-    Función: create_bill(p_user_id, p_data) → genera short_code internamente
+    tabla rate_limits: ip (text), endpoint (text), count (int), window_start (timestamptz)
+    RLS: insert_any, select_own, select_anonymous (solo en bills; rate_limits sin RLS)
+    Función create_bill(p_user_id, p_data) → genera short_code internamente
+    Función check_rate_limit(p_ip, p_endpoint) → retorna {allowed, current_count}
 ```
 
 ---

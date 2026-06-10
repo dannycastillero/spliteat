@@ -1,6 +1,6 @@
 # Master Plan — SplitEat
 
-**Última actualización:** 2026-06-09 (deploy v3 completo)
+**Última actualización:** 2026-06-09 (pre-QA features completas)
 
 ---
 
@@ -50,6 +50,21 @@ Plan short links: [2026-06-08-short-links.md](superpowers/plans/2026-06-08-short
 
 ---
 
+### Pre-QA — Hardening antes del beta (COMPLETO ✅)
+
+Spec: [2026-06-09-pre-qa-features-design.md](superpowers/specs/2026-06-09-pre-qa-features-design.md)
+Plan: [2026-06-09-pre-qa-features.md](superpowers/plans/2026-06-09-pre-qa-features.md)
+
+| Paso | Descripción | Estado |
+|------|-------------|--------|
+| CTA en share page | Card "Divide tu cuenta gratis →" al final de SharePage | ✅ Completo |
+| Rate limiting en `/api/ocr` | 20 llamadas/hora por IP via función RPC en Supabase | ✅ Completo |
+| Validación de tamaño OCR | Límite de 7MB en imageBase64 | ✅ Completo |
+| Tabla `rate_limits` en Supabase | ip + endpoint → count + window_start | ✅ Completo |
+| Tests SharePage | 2 nuevos tests (CTA visible + navegación) | ✅ Completo |
+
+---
+
 ### v4 — QA y Beta Testing (PRÓXIMO 🎯)
 
 | Paso | Descripción | Estado |
@@ -66,6 +81,7 @@ Plan short links: [2026-06-08-short-links.md](superpowers/plans/2026-06-08-short
 | Acción | Tipo | Prioridad |
 |--------|------|-----------|
 | Planificar QA + formulario de feedback | Con IA | 🔴 Alta |
+| Implementar items de prioridad media pre-QA | Con IA | 🟡 Media |
 | Enviar URL a 20-30 beta testers | Manual | 🟡 Media |
 | Analizar feedback y priorizar cambios | Con IA | 🟡 Media |
 
