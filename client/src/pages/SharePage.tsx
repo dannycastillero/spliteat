@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { calculateAllBreakdowns } from '../lib/taxCalculator'
 import { getBillFromServer, getBillByCode } from '../api/client'
 import type { BillState } from '../types'
@@ -7,6 +7,7 @@ import type { BillState } from '../types'
 export default function SharePage() {
   const { billId, code } = useParams<{ billId?: string; code?: string }>()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [bill, setBill] = useState<BillState | null>(null)
   const [error, setError] = useState(false)
 
@@ -118,8 +119,16 @@ export default function SharePage() {
         })}
       </div>
 
-      <div className="text-center mt-8 text-xs text-gray-400">
-        Generado con SplitEat 🍽️
+      <div className="mt-10 rounded-2xl bg-gray-50 px-5 py-6 text-center">
+        <p className="text-sm text-on-surface-variant mb-4">
+          ¿Tienes que dividir la próxima cuenta?
+        </p>
+        <button
+          onClick={() => navigate('/')}
+          className="w-full bg-primary text-white font-heading font-semibold py-3 rounded-full text-sm"
+        >
+          Divide tu cuenta gratis →
+        </button>
       </div>
     </div>
   )
